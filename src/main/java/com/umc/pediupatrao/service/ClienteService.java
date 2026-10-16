@@ -6,6 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ClienteService {
@@ -13,8 +17,12 @@ public class ClienteService {
     @Autowired
     private ClienteRepository clienteRepository;
 
+    @Autowired
+    private AuditoriaService auditoriaService;
+
     public Cliente novoCliente(Cliente cliente) {
-        return clienteRepository.save(cliente);
+        cliente.setId(null);
+        return salvar(cliente);
     }
 
     public List<Cliente> listarClientes() {
@@ -23,7 +31,10 @@ public class ClienteService {
 
     // Método para excluir cliente
     public void excluir(String id) {
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado."));
         clienteRepository.deleteById(id);
+        auditoriaService.registrar("EXCLUSAO", "CLIENTE", id, dadosDoCliente(cliente), Map.of(), null);
     }
 
     public Optional<Cliente> buscarPorId(String id) {
@@ -32,18 +43,33 @@ public class ClienteService {
 
     // Método para salvar um novo cliente ou atualizar um cliente existente
     public Cliente salvar(Cliente cliente) {
-        // Se o cliente não tem ID (novo cliente), salva como novo
-        if (cliente.getId() == null) {
-            return clienteRepository.save(cliente);  // Cria um novo cliente
-        } // Se já tem ID (cliente existente), atualiza
-        else {
-            // Verifica se o cliente existe antes de atualizar
-            if (clienteRepository.existsById(cliente.getId())) {
-                return clienteRepository.save(cliente);  // Atualiza o cliente existente
-            } else {
-                throw new IllegalArgumentException("Cliente não encontrado para atualização.");
-            }
+        String operacao = "INCLUSAO";
+        Map<String, String> anteriores = Map.of();
+        if (cliente.getId() != null) {
+            Cliente existente = clienteRepository.findById(cliente.getId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado."));
+            anteriores = dadosDoCliente(existente);
+            operacao = "ALTERACAO";
         }
+
+        Cliente salvo = clienteRepository.save(cliente);
+        auditoriaService.registrar(operacao, "CLIENTE", salvo.getId(), anteriores, dadosDoCliente(salvo), null);
+        return salvo;
+    }
+
+    private Map<String, String> dadosDoCliente(Cliente cliente) {
+        Map<String, String> dados = new LinkedHashMap<>();
+        dados.put("nome", cliente.getNome());
+        dados.put("telefone", cliente.getTelefone());
+        dados.put("cep", cliente.getCep());
+        dados.put("logradouro", cliente.getLogradouro());
+        dados.put("numero", cliente.getNumero());
+        dados.put("complemento", cliente.getComplemento());
+        dados.put("bairro", cliente.getBairro());
+        dados.put("cidade", cliente.getCidade());
+        dados.put("estado", cliente.getEstado());
+        dados.put("endereco", cliente.getEndereco());
+        return dados;
     }
 
 }

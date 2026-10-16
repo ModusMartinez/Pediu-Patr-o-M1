@@ -9,7 +9,7 @@
         <h2 class="fw-bold mb-0">
             <i class="bi bi-person-raised-hand me-2 text-primary"></i>Clientes
         </h2>
-        <a href="/clientes/novo" class="btn btn-primary">
+        <a href="/clientes/novo" class="btn btn-primary" th:if="${perfil == 'ROLE_ATENDENTE'}">
             <i class="bi bi-plus-lg me-1"></i> Novo Cliente
         </a>
     </div>
@@ -33,9 +33,11 @@
         </div>
     </div>
 
-    <script>
+    <script th:inline="javascript">
         const API_URL = '/api/clientes';
         const tabelaClientes = document.getElementById('clientes-tabela');
+        const podeEditar = /*[[${perfil == 'ROLE_ATENDENTE'}]]*/ false;
+        const podeExcluir = /*[[${perfil == 'ROLE_ADMIN'}]]*/ false;
 
         function formatarEndereco(cliente) {
             const partes = [
@@ -73,12 +75,12 @@
                     <td>${cliente.telefone || '—'}</td>
                     <td>${formatarEndereco(cliente)}</td>
                     <td class="text-end pe-4">
-                        <a href="/clientes/editar/${cliente.id}" class="btn btn-sm btn-outline-primary me-1">
+                        ${podeEditar ? `<a href="/clientes/editar/${cliente.id}" class="btn btn-sm btn-outline-primary me-1">
                             <i class="bi bi-pencil-fill"></i> Editar
-                        </a>
-                        <button class="btn btn-sm btn-outline-danger" onclick="excluirCliente('${cliente.id}')">
+                        </a>` : ''}
+                        ${podeExcluir ? `<button class="btn btn-sm btn-outline-danger" onclick="excluirCliente('${cliente.id}')">
                             <i class="bi bi-trash-fill"></i> Excluir
-                        </button>
+                        </button>` : ''}
                     </td>
                 `;
                 tabelaClientes.appendChild(row);
@@ -87,7 +89,12 @@
 
         async function excluirCliente(id) {
             if (confirm('Tem certeza que deseja excluir este cliente?')) {
-                const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+                const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE',
+                    headers: { [csrfHeader]: csrfToken }
+                });
                 if (response.ok) {
                     alert('Cliente excluído com sucesso!');
                     carregarClientes();

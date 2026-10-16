@@ -13,27 +13,32 @@
             <div th:replace="~{fragments/sidebar :: sidebar}"></div>
         </aside>
 
-        <div class="container mt-5">
+        <div class="container mt-5" th:fragment="content">
             <h1 class="mb-4">Gestão de Produtos</h1>
+            <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
+            <div class="alert alert-danger" th:if="${erro}" th:text="${erro}"></div>
 
             <!-- Botão para abrir o formulário -->
-            <button class="btn btn-primary mb-3" data-bs-toggle="collapse" data-bs-target="#formularioProduto">
+            <button th:if="${produto.id == null}" class="btn btn-primary mb-3" data-bs-toggle="collapse" data-bs-target="#formularioProduto">
                 Novo Produto
             </button>
+            <a th:if="${produto.id != null}" href="/produtos" class="btn btn-primary mb-3">Novo Produto</a>
 
             <!-- Formulário de Cadastro -->
-            <div class="collapse" id="formularioProduto">
+            <div class="collapse" id="formularioProduto" th:classappend="${produto.id != null ? 'show' : ''}">
                 <div class="card card-body">
-                    <form th:action="@{/api/produtos}" method="post" id="produtoForm">
+                    <h5 th:text="${produto.id == null ? 'Novo produto' : 'Editar produto'}"></h5>
+                    <form th:action="@{/produtos/salvar}" th:object="${produto}" method="post" id="produtoForm">
+                        <input th:if="${produto.id != null}" type="hidden" th:field="*{id}">
                         <div class="mb-3">
                             <label for="nome" class="form-label">Nome do Produto</label>
-                            <input type="text" id="nome" name="nome" class="form-control" placeholder="Nome do Produto" required>
+                            <input type="text" id="nome" th:field="*{nome}" class="form-control" placeholder="Nome do Produto" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="tipo" class="form-label">Tipo do Produto</label>
-                            <select id="tipo" name="tipo" class="form-select" required>
-                                <option value="" disabled selected>Selecione o Tipo</option>
+                            <select id="tipo" th:field="*{tipo}" class="form-select" required>
+                                <option value="" disabled>Selecione o Tipo</option>
                                 <option value="Pizza">Pizza</option>
                                 <option value="Lanche">Lanche</option>
                                 <option value="Bebida">Bebida</option>
@@ -44,11 +49,11 @@
 
                         <div class="mb-3">
                             <label for="preco" class="form-label">Preço</label>
-                            <input type="number" id="preco" name="preco" class="form-control" placeholder="Preço (R$)" step="0.01" required>
+                            <input type="number" id="preco" th:field="*{preco}" class="form-control" placeholder="Preço (R$)" min="0.01" step="0.01" required>
                         </div>
 
                         <div class="form-check mb-3">
-                            <input type="checkbox" id="ativo" name="ativo" class="form-check-input">
+                            <input type="checkbox" id="ativo" th:field="*{ativo}" class="form-check-input">
                             <label for="ativo" class="form-check-label">Produto Ativo</label>
                         </div>
 
@@ -77,14 +82,14 @@
                         <td th:text="${produto.id}"></td>
                         <td th:text="${produto.nome}"></td>
                         <td th:text="${produto.tipo}"></td>
-                        <td th:text="${#numbers.formatDecimal(produto.preco, 1, 'COMMA', 2, 'POINT')}"></td>
-                        <td th:text="${produto.ativo ? 'Sim' : 'Não'}">Sim</td>
+                        <td th:text="${#numbers.formatDecimal(produto.preco, 1, 'POINT', 2, 'COMMA')}"></td>
+                        <td th:text="${produto.ativo == true ? 'Sim' : 'Não'}">Sim</td>
                         <td>
-                            <a th:href="@{/api/produtos/{id}(id=${produto.id})}" class="btn btn-warning btn-sm">Editar</a>
-                            <a th:href="@{/api/produtos/{id}(id=${produto.id})}" class="btn btn-danger btn-sm" 
-                               onclick="return confirm('Tem certeza que deseja excluir este produto?');">
-                                Excluir
-                            </a>
+                            <a th:href="@{/produtos/editar/{id}(id=${produto.id})}" class="btn btn-warning btn-sm">Editar</a>
+                            <form th:action="@{/produtos/excluir/{id}(id=${produto.id})}" method="post" class="d-inline"
+                                  onsubmit="return confirm('Tem certeza que deseja excluir este produto?');">
+                                <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                            </form>
                         </td>
                     </tr>
                 </tbody>

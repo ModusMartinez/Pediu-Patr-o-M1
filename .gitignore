@@ -7,6 +7,8 @@
 /src/main/resources/application-local.properties
 .DS_Store
 *.log
-/README.md
-/readme.md
+DADOS.md
+dados.md
+/DADOS.md
+/dados.md
 /readmesolo.md
