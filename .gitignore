@@ -1,1 +1,12 @@
-/build/
+/target/
+/.local/
+/.env
+/.env.*
+!/.env.example
+/application-local.properties
+/src/main/resources/application-local.properties
+.DS_Store
+*.log
+/README.md
+/readme.md
+/readmesolo.md

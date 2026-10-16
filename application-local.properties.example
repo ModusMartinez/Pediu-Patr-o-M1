@@ -1,0 +1,6 @@
+# Opcional: copie para application-local.properties na raiz e preencha seu Atlas.
+# O arquivo application-local.properties não será enviado ao Git.
+# Não use o banco compartilhado fornecido no projeto para desenvolver.
+
+# spring.data.mongodb.uri=mongodb+srv://SEU_USUARIO:SUA_SENHA@SEU_CLUSTER/pizzaria
+# spring.data.mongodb.database=pizzaria
