@@ -49,6 +49,21 @@ class SecurityConfigTest {
     @MockBean private AuditoriaService auditoriaService;
 
     @Test
+    void dashboardApareceApenasParaAdminEGerente() throws Exception {
+        mvc.perform(get("/admin")).andExpect(status().is3xxRedirection());
+        for (String perfil : List.of("ADMIN", "GERENTE")) {
+            mvc.perform(get("/admin").with(user("teste").roles(perfil)))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string(containsString("data-resumo=\"/api/dashboard/resumo\"")))
+                    .andExpect(content().string(containsString("href=\"/admin\"")));
+        }
+        mvc.perform(get("/admin").with(user("teste").roles("ATENDENTE")))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/").with(user("teste").roles("ATENDENTE")))
+                .andExpect(content().string(not(containsString("href=\"/admin\""))));
+    }
+
+    @Test
     void auditoriaSomenteParaConsultaDeAdminEGerente() throws Exception {
         mvc.perform(get("/api/auditoria")).andExpect(status().isUnauthorized());
         for (String perfil : List.of("ADMIN", "GERENTE", "ATENDENTE")) {

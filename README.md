@@ -58,3 +58,11 @@ sh ./mvnw test
 ```
 
 Os testes usam serviços e repositórios simulados e não precisam do MongoDB.
+
+## Dashboard administrativo
+
+Entre como `ADMIN` ou `GERENTE` e abra **Dashboard** no menu para acompanhar
+vendas, situação dos pedidos e produtos mais vendidos.
+
+- [Requisitos, documentação da API e evidências dos testes](docs/dashboard.md)
+- [Vídeo de demonstração](docs/dashboard-demo.mp4)

@@ -1,0 +1,108 @@
+<section xmlns:th="http://www.thymeleaf.org" th:fragment="content" id="dashboard"
+         class="pt-4 pt-md-0" th:data-resumo="@{/api/dashboard/resumo}"
+         th:data-pedidos="@{/api/dashboard/pedidos}" th:data-login="@{/login}">
+    <h1 class="h3 mb-2">Dashboard administrativo</h1>
+    <p class="text-muted">Acompanhe as vendas e os pedidos pela data de entrada.</p>
+
+    <form id="dashboard-filtros" class="row g-2 align-items-end mb-3">
+        <div class="col-6 col-lg-2">
+            <label for="dashboard-inicio" class="form-label">Data inicial</label>
+            <input type="date" class="form-control" id="dashboard-inicio" required>
+        </div>
+        <div class="col-6 col-lg-2">
+            <label for="dashboard-fim" class="form-label">Data final</label>
+            <input type="date" class="form-control" id="dashboard-fim" required>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <label for="dashboard-status" class="form-label">Status dos pedidos recentes</label>
+            <select class="form-select" id="dashboard-status">
+                <option value="">Todos</option>
+            </select>
+        </div>
+        <div class="col-sm-auto">
+            <button type="submit" class="btn btn-primary">Aplicar filtros</button>
+            <button type="submit" class="btn btn-outline-secondary">Atualizar</button>
+        </div>
+    </form>
+
+    <p id="dashboard-atualizado" class="small text-muted"></p>
+    <p id="dashboard-mensagem" class="alert alert-info" role="status">Carregando dados…</p>
+
+    <div id="dashboard-resultados" hidden>
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="card h-100"><div class="card-body">
+                    <h2 class="h6 text-muted">Faturamento</h2>
+                    <p id="dashboard-faturamento" class="h4 mb-0"></p>
+                </div></div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="card h-100"><div class="card-body">
+                    <h2 class="h6 text-muted">Pedidos no período</h2>
+                    <p id="dashboard-total" class="h4 mb-0"></p>
+                </div></div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="card h-100"><div class="card-body">
+                    <h2 class="h6 text-muted">Pedidos finalizados</h2>
+                    <p id="dashboard-finalizados" class="h4 mb-0"></p>
+                </div></div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="card h-100"><div class="card-body">
+                    <h2 class="h6 text-muted">Tíquete médio</h2>
+                    <p id="dashboard-ticket" class="h4 mb-0"></p>
+                </div></div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-xl-6">
+                <div class="card h-100"><div class="card-body">
+                    <h2 class="h5">Faturamento por dia</h2>
+                    <div class="position-relative" style="height: 220px">
+                        <canvas id="dashboard-grafico-vendas" role="img" aria-label="Faturamento diário em reais"></canvas>
+                    </div>
+                </div></div>
+            </div>
+            <div class="col-xl-6">
+                <div class="card h-100"><div class="card-body">
+                    <h2 class="h5">Pedidos por dia</h2>
+                    <div class="position-relative" style="height: 220px">
+                        <canvas id="dashboard-grafico-pedidos" role="img" aria-label="Quantidade de pedidos por dia"></canvas>
+                    </div>
+                </div></div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-lg-6">
+                <div class="card h-100"><div class="card-body">
+                    <h2 class="h5">Situação dos pedidos</h2>
+                    <ul id="dashboard-contagem-status" class="list-group list-group-flush"></ul>
+                </div></div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card h-100"><div class="card-body">
+                    <h2 class="h5">Produtos mais vendidos</h2>
+                    <ol id="dashboard-ranking" class="mb-0 ps-4"></ol>
+                    <p id="dashboard-sem-ranking" class="text-muted mb-0" hidden>Sem itens de pedidos finalizados no período.</p>
+                </div></div>
+            </div>
+        </div>
+
+        <div class="card mb-4"><div class="card-body">
+            <h2 class="h5">Pedidos recentes</h2>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead><tr><th scope="col">Pedido</th><th scope="col">Entrada</th>
+                        <th scope="col">Situação</th><th scope="col">Total</th></tr></thead>
+                    <tbody id="dashboard-pedidos"></tbody>
+                </table>
+            </div>
+        </div></div>
+    </div>
+
+    <script defer th:src="@{/plugins/chart.js/Chart.min.js}"></script>
+    <script defer th:src="@{/js/dashboard.js}"></script>
+</section>
