@@ -15,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -47,7 +48,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers("/login", "/css/**", "/dist/**", "/plugins/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers("/usuarios", "/usuarios/**", "/api/usuarios/**", "/admin", "/configuracoes").hasRole("ADMIN")
+                        .requestMatchers("/usuarios", "/usuarios/**", "/api/usuarios/**", "/configuracoes").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/admin", "/api/dashboard/**").hasAnyRole("ADMIN", "GERENTE")
+                        .requestMatchers("/admin", "/api/dashboard/**").denyAll()
                         .requestMatchers(HttpMethod.GET, "/auditoria", "/api/auditoria").hasAnyRole("ADMIN", "GERENTE")
                         .requestMatchers("/auditoria/**", "/api/auditoria/**").denyAll()
                         .requestMatchers("/api/pedidos/*/desconto", "/api/pedidos/*/cancelar").hasRole("GERENTE")
@@ -63,6 +66,8 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(ex -> ex.defaultAuthenticationEntryPointFor(
                         new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), new AntPathRequestMatcher("/api/**"))
+                        .defaultAuthenticationEntryPointFor(
+                                new LoginUrlAuthenticationEntryPoint("/login"), new AntPathRequestMatcher("/admin"))
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
